@@ -1,10 +1,10 @@
 <?php
 
-class PlayerMapper extends Mapper
+class TeamMapper extends Mapper
 {
-    public function getPlayers() {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p";
+    //id, tournament_id, group_id, player1_id, player2_id
+    public function getTeams() {
+        $sql = "SELECT * from Teams";
         $stmt = $this->db->query($sql);
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -17,34 +17,23 @@ class PlayerMapper extends Mapper
      * @param int $player_id The ID of the player
      * @return PlayerEntity  The player
      */
-    public function getPlayerById($player_id) {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p
-            where p.id = :player_id";
+    public function getTeamById($team_id) {
+        $sql = "SELECT *
+            from Teams
+            where Teams.id = :team_id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(["player_id" => $player_id]);
+        $stmt->execute(["team_id" => $team_id]);
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result;
-
-        // if($result) {
-        //     return new PlayerEntity($stmt->fetch());
-        // }
-
     }
 
-    /**
-     * Get one player by its phone number
-     *
-     * @param int $player_phone_number The phone number of the player
-     * @return PlayerEntity  The player
-     */
-    public function getPlayerByPhoneNumber($player_phone_number) {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p
-            where p.phone = :player_phone_number";
+    public function getTeamsByPlayerId($player_id) {
+        $sql = "SELECT *
+            FROM Teams
+            WHERE Teams.player1_id = :player_id OR Teams.player2_id = :player_id ";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(["player_phone_number" => $player_phone_number]);
+        $stmt->execute(["player_id" => $player_id]);
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $result;

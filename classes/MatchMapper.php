@@ -1,10 +1,10 @@
 <?php
 
-class PlayerMapper extends Mapper
+class MatchMapper extends Mapper
 {
-    public function getPlayers() {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p";
+    //id, tournament_id, group_id, team1_id, team2_id, team1_score, team2_score, winner_id, matchtype_id, table_id,
+    public function getMatches() {
+        $sql = "SELECT * from Matches";
         $stmt = $this->db->query($sql);
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -17,12 +17,12 @@ class PlayerMapper extends Mapper
      * @param int $player_id The ID of the player
      * @return PlayerEntity  The player
      */
-    public function getPlayerById($player_id) {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p
-            where p.id = :player_id";
+    public function getMatchById($match_id) {
+        $sql = "SELECT *
+            from Matches
+            where Matches.id = :match_id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(["player_id" => $player_id]);
+        $stmt->execute(["match_id" => $match_id]);
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result;
@@ -30,21 +30,15 @@ class PlayerMapper extends Mapper
         // if($result) {
         //     return new PlayerEntity($stmt->fetch());
         // }
-
     }
 
-    /**
-     * Get one player by its phone number
-     *
-     * @param int $player_phone_number The phone number of the player
-     * @return PlayerEntity  The player
-     */
-    public function getPlayerByPhoneNumber($player_phone_number) {
-        $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p
-            where p.phone = :player_phone_number";
+    public function getMatchesByPlayerId($player_id) {
+        // Find all matches from teams where playerid is on.
+        $sql = "SELECT * FROM Matches
+            WHERE team1_id IN (SELECT t.id FROM Teams t WHERE t.player1_id = :player_id OR t.player2_id = :player_id)
+            OR team2_id IN (SELECT t.id FROM Teams t WHERE t.player1_id = :player_id OR t.player2_id = :player_id)";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(["player_phone_number" => $player_phone_number]);
+        $stmt->execute(["player_id" => $player_id]);
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $result;
