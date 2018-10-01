@@ -4,7 +4,8 @@ class PlayerMapper extends Mapper
 {
     public function getPlayers() {
         $sql = "SELECT p.id, p.name, p.phone, p.rating, p.elo
-            from Players p";
+            FROM Players p
+            ORDER BY p.elo DESC";
         $stmt = $this->db->query($sql);
 
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);

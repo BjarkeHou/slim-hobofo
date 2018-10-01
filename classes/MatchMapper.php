@@ -44,21 +44,24 @@ class MatchMapper extends Mapper
         return $result;
     }
 
-    public function save(TicketEntity $ticket) {
-        $sql = "insert into tickets
-            (title, description, component_id) values
-            (:title, :description,
-            (select id from components where component = :component))";
+    public function saveQuickMatch($matchData) {
+        //id, tournament_id, group_id, team1_id, team2_id, team1_score, team2_score, winner_id, matchtype_id, table_id,
+        $sql = "insert into matches
+            (tournament_id, group_id, team1_id, team2_id, winner_id, matchtype_id, ended) values
+            (:tournament_id, :group_id, :team1_id, :team2_id, :winner_id, :matchtype_id, NOW())";
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
-            "title" => $ticket->getTitle(),
-            "description" => $ticket->getDescription(),
-            "component" => $ticket->getComponent(),
+            "tournament_id" => -1,
+            "group_id" => -1,
+            "team1_id" => $matchData["team1_id"],
+            "team2_id" => $matchData["team2_id"],
+            "winner_id" => $matchData["winner_id"],
+            "matchtype_id" => $matchData["matchtype_id"]
         ]);
 
         if(!$result) {
-            throw new Exception("could not save record");
+            throw new Exception("Could not save quickmatch");
         }
     }
 }

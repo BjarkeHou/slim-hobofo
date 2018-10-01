@@ -18,14 +18,32 @@ class TeamMapper extends Mapper
      * @return PlayerEntity  The player
      */
     public function getTeamById($team_id) {
-        $sql = "SELECT *
-            from Teams
-            where Teams.id = :team_id";
+        $sql = "SELECT t.id id, t.tournament_id tournament_id, t.group_id group_id, p1.name player1, p1.elo player1_elo, p2.name player2, p2.elo player2_elo
+                FROM Teams t
+                LEFT JOIN Players p1 ON t.player1_id = p1.id
+                LEFT JOIN Players p2 ON t.player2_id = p2.id
+                WHERE t.id = :team_id";
+        // $sql = "SELECT *
+        //     from Teams
+        //     where Teams.id = :team_id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(["team_id" => $team_id]);
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result;
+
+        $team = array(
+            'team' => array(
+                'id' => $result["id"],
+                'tournament_id' => $result["tournament_id"],
+                'group_id' => $result["group_id"],
+                'players' => array(
+                    array('name' => $result["player1"], 'elo' => $result["player1_elo"]),
+                    array('name' => $result["player2"], 'elo' => $result["player2_elo"]),
+                )
+            )
+        );
+
+        return $team;
     }
 
     public function getTeamsByPlayerId($player_id) {

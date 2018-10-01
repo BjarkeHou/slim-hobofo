@@ -7,9 +7,9 @@ require './vendor/autoload.php';
 $config['displayErrorDetails'] = true;
 $config['addContentLengthHeader'] = false;
 
-$config['db']['host']   = 'localhost';
-$config['db']['user']   = 'hobofo';
-$config['db']['pass']   = 'test';
+$config['db']['host']   = '127.0.0.1';
+$config['db']['user']   = 'root';
+$config['db']['pass']   = 'Kxui23Lo04';
 $config['db']['dbname'] = 'hobofo';
 
 $app = new \Slim\App(['settings' => $config]);
@@ -78,6 +78,19 @@ $app->get('/players', function (Request $request, Response $response) {
 });
 
 //----------------------------------------------------Matches
+// id, tournament_id, group_id, team1_id, team2_id, team1_score, team2_score, winner_id, matchtype_id, table_id,
+$app->post('/matches/quickmatch', function (Request $request, Response $response) {
+    $data = $request->getParsedBody();
+    $match_data = [];
+    $match_data['team1_id'] = filter_var($data['team1_id'], FILTER_VALIDATE_INT);
+    $match_data['team2_id'] = filter_var($data['team2_id'], FILTER_VALIDATE_INT);
+    $match_data['winner_id'] = filter_var($data['winner_id'], FILTER_VALIDATE_INT);
+    $match_data['matchtype_id'] = filter_var($data['matchtype_id'], FILTER_VALIDATE_INT);
+
+    $mapper = new MatchMapper($this->db);
+    $result = $mapper->saveQuickMatch($match_data);
+    return $response->getBody()->write($result);
+});
 
 $app->get('/matches/player/{id}', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Match by player id");
@@ -138,6 +151,8 @@ $app->get('/teams/{id}', function (Request $request, Response $response, $args) 
     $team_id = (int)$args['id'];
     $mapper = new TeamMapper($this->db);
     $team = $mapper->getTeamById($team_id);
+
+
 
     return $response
             ->withJson($team)
