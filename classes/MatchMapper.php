@@ -62,6 +62,8 @@ class MatchMapper extends Mapper
 
         if(!$result) {
             throw new Exception("Could not save quickmatch");
+        } else {
+            return $this->db->lastInsertId();
         }
     }
 }

@@ -133,6 +133,20 @@ $app->get('/matches', function (Request $request, Response $response) {
 
 //----------------------------------------------------Teams
 
+// Saves a team, returns team_id
+$app->post('/teams/new', function (Request $request, Response $response) {
+    $data = $request->getParsedBody();
+    $team_data = [];
+    $team_data['tournament_id'] = (array_key_exists('tournament_id', $data) ? filter_var($data['tournament_id'], FILTER_VALIDATE_INT) : -1);
+    $team_data['group_id'] = (array_key_exists('group_id', $data) ? filter_var($data['group_id'], FILTER_VALIDATE_INT) : -1);
+    $team_data['player1_id'] = filter_var($data['player1_id'], FILTER_VALIDATE_INT);
+    $team_data['player2_id'] = filter_var($data['player2_id'], FILTER_VALIDATE_INT);
+
+    $mapper = new TeamMapper($this->db);
+    $result = $mapper->saveTeam($team_data);
+    return $response->getBody()->write($result);
+});
+
 $app->get('/teams/player/{id}', function (Request $request, Response $response, $args) {
     $this->logger->addInfo("Team by player id");
     $player_id = (int)$args['id'];

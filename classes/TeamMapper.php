@@ -74,4 +74,25 @@ class TeamMapper extends Mapper
             throw new Exception("could not save record");
         }
     }
+
+    public function saveTeam($teamData) {
+        //id, tournament_id, group_id, team1_id, team2_id, team1_score, team2_score, winner_id, matchtype_id, table_id,
+        $sql = "INSERT INTO Teams
+            (tournament_id, group_id, player1_id, player2_id) values
+            (:tournament_id, :group_id, :player1_id, :player2_id)";
+
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute([
+            "tournament_id" => $teamData["tournament_id"],
+            "group_id" => $teamData["group_id"],
+            "player1_id" => $teamData["player1_id"],
+            "player2_id" => $teamData["player2_id"]
+        ]);
+
+        if(!$result) {
+            throw new Exception("Could not save team");
+        } else {
+            return $this->db->lastInsertId();
+        }
+    }
 }
